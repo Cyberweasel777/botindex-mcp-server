@@ -1,0 +1,43 @@
+{
+  "name": "@cyberweasel777/botindex-mcp-server",
+  "mcpName": "io.github.cyberweasel777/botindex-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for BotIndex — x402-gated sports betting, crypto, and commerce intelligence API for AI agents",
+  "main": "dist/index.js",
+  "bin": {
+    "botindex-mcp-server": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "botindex",
+    "x402",
+    "sports-betting",
+    "crypto",
+    "ai-agent",
+    "trading",
+    "odds",
+    "arbitrage"
+  ],
+  "author": "Cyberweasel777",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Cyberweasel777/botindex-mcp-server"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
