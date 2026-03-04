@@ -1,6 +1,6 @@
 # BotIndex MCP Server
 
-> Signal intelligence for AI agents — sports odds, crypto correlations, token graduations, and more. Pay per request with USDC via [x402](https://x402.org). No API keys.
+> Signal intelligence for AI agents — sports odds, crypto correlations, token graduations, and more. **50 free premium requests per wallet.** Then pay per request with USDC via [x402](https://x402.org). No API keys.
 
 **Live API:** [king-backend.fly.dev](https://king-backend.fly.dev/api/botindex/v1/)
 
@@ -113,7 +113,11 @@ MCP Server → GET king-backend.fly.dev/api/botindex/v1/sports/odds
 
 No API keys. No signup. No rate limit tiers. Your wallet is your identity.
 
-To enable automatic payments, configure your agent with a funded Base wallet and the [@x402/client](https://www.npmjs.com/package/@x402/client) SDK.
+### Free Trial
+
+Every wallet gets **50 free premium requests**. Just send an `X-Wallet: 0x...` header. The response includes `X-BotIndex-Free-Remaining` so you know exactly where you stand. After 50 requests, x402 payment kicks in automatically.
+
+To enable automatic payments after trial, configure your agent with a funded Base wallet and the [@x402/client](https://www.npmjs.com/package/@x402/client) SDK.
 
 ---
 
