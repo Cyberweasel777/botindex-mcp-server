@@ -1,20 +1,30 @@
 # BotIndex MCP Server
 
-MCP server for [BotIndex](https://king-backend.fly.dev/api/botindex/v1/) — an x402-gated API providing sports betting, crypto, and commerce intelligence data for AI agents.
+> Signal intelligence for AI agents — sports odds, crypto correlations, token graduations, and more. Pay per request with USDC via [x402](https://x402.org). No API keys.
 
-## Features
+**Live API:** [king-backend.fly.dev](https://king-backend.fly.dev/api/botindex/v1/)
 
-- **17 tools** covering sports odds, crypto tokens, Solana launches, commerce protocol comparison, and correlation analytics
-- **x402 payment protocol** — pay-per-request with USDC on Base (no API keys, no subscriptions)
-- Works with Claude Desktop, Cursor, Cline, Windsurf, Continue.dev, and any MCP-compatible client
+---
 
-## Installation
+## Try It Now
 
 ```bash
-npx @cyberweasel777/botindex-mcp-server
+# Run the MCP server
+npx botindex-mcp-server
+
+# Or test the API directly (free endpoints)
+curl https://king-backend.fly.dev/api/botindex/v1/
+curl https://king-backend.fly.dev/api/botindex/zora/trending-coins
+curl https://king-backend.fly.dev/api/botindex/hyperliquid/funding-arb
 ```
 
-## Configuration
+---
+
+## Install
+
+```bash
+npm install botindex-mcp-server
+```
 
 ### Claude Desktop
 
@@ -25,7 +35,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
   "mcpServers": {
     "botindex": {
       "command": "npx",
-      "args": ["-y", "@cyberweasel777/botindex-mcp-server"]
+      "args": ["-y", "botindex-mcp-server"]
     }
   }
 }
@@ -40,58 +50,91 @@ Add to `.cursor/mcp.json`:
   "mcpServers": {
     "botindex": {
       "command": "npx",
-      "args": ["-y", "@cyberweasel777/botindex-mcp-server"]
+      "args": ["-y", "botindex-mcp-server"]
     }
   }
 }
 ```
 
-## Available Tools
+### Windsurf / Cline / Continue.dev
 
-### Sports
-| Tool | Description |
-|------|-------------|
-| `botindex_sports_odds` | Live odds across multiple bookmakers |
-| `botindex_sports_lines` | Betting lines with movement data |
-| `botindex_sports_props` | Player prop bets |
-| `botindex_sports_correlations` | Correlated prop combinations for parlays |
-| `botindex_sports_optimizer` | DFS/betting lineup optimizer |
-| `botindex_sports_arb` | Cross-bookmaker arbitrage opportunities |
+Same pattern — point your MCP config at `npx botindex-mcp-server`.
 
-### Crypto
-| Tool | Description |
-|------|-------------|
-| `botindex_crypto_tokens` | Token universe with prices and correlations |
-| `botindex_crypto_graduating` | Tokens graduating from launchpad to live markets |
+---
 
-### Solana
-| Tool | Description |
-|------|-------------|
-| `botindex_solana_launches` | Metaplex Genesis token launches |
-| `botindex_solana_active` | Active Solana token launches |
+## 17 Tools
 
-### Commerce
-| Tool | Description |
-|------|-------------|
-| `botindex_commerce_compare` | Compare ACP vs UCP vs x402 protocols |
-| `botindex_commerce_protocols` | Protocol directory with fees and merchant counts |
+### Sports Intelligence
+| Tool | Description | Price |
+|------|-------------|-------|
+| `botindex_sports_odds` | Live odds across NFL, NBA, UFC, NHL | $0.02 |
+| `botindex_sports_lines` | Line movements + sharp action flags | $0.02 |
+| `botindex_sports_props` | Player prop bets with confidence | $0.02 |
+| `botindex_sports_correlations` | Player correlation matrix for DFS | $0.05 |
+| `botindex_sports_optimizer` | Correlation-adjusted DFS lineup optimizer | $0.10 |
+| `botindex_sports_arb` | Cross-platform arbitrage scanner | $0.05 |
 
-### Analytics
-| Tool | Description |
-|------|-------------|
-| `botindex_dashboard` | Correlation matrix, market leaders, fear/greed |
-| `botindex_correlation_leaders` | Top correlated/anti-correlated token pairs |
-| `botindex_signals` | Prediction market arbitrage signals |
-| `botindex_agent_trace` | Execution history for BotIndex agents |
+### Crypto & Token Launches
+| Tool | Description | Price |
+|------|-------------|-------|
+| `botindex_crypto_tokens` | Token universe with price data | $0.02 |
+| `botindex_crypto_graduating` | Catapult→Hyperliquid graduation signals | $0.02 |
+| `botindex_solana_launches` | Metaplex Genesis token launches | $0.02 |
+| `botindex_solana_active` | Active Genesis launches only | $0.02 |
+| `botindex_correlation_leaders` | Top correlated/anti-correlated pairs | $0.05 |
 
-### Discovery
-| Tool | Description |
-|------|-------------|
-| `botindex_discover` | List all endpoints with pricing |
+### Agentic Commerce
+| Tool | Description | Price |
+|------|-------------|-------|
+| `botindex_commerce_compare` | Compare ACP vs UCP vs x402 protocols | $0.05 |
+| `botindex_commerce_protocols` | Protocol directory with fees | $0.01 |
 
-## Payment
+### Premium Analytics
+| Tool | Description | Price |
+|------|-------------|-------|
+| `botindex_dashboard` | Correlation matrix, leaders, fear/greed | $0.50 |
+| `botindex_signals` | Aggregated prediction market signals | $0.10 |
+| `botindex_agent_trace` | Agent reasoning trace | $0.05 |
+| `botindex_discover` | Full endpoint catalog (FREE) | Free |
 
-BotIndex uses the [x402 protocol](https://x402.org) for payment. Endpoints return HTTP 402 with payment instructions. Integrate the x402 SDK to enable automatic USDC payments on Base.
+---
+
+## How Payment Works
+
+BotIndex uses [x402](https://github.com/coinbase/x402) — the HTTP 402 Payment Required protocol by Coinbase.
+
+```
+Your Agent → calls botindex tool
+MCP Server → GET king-backend.fly.dev/api/botindex/v1/sports/odds
+           ← 402 + payment instructions (amount, wallet, network)
+           → pays USDC on Base via x402
+           ← 200 + data
+```
+
+No API keys. No signup. No rate limit tiers. Your wallet is your identity.
+
+To enable automatic payments, configure your agent with a funded Base wallet and the [@x402/client](https://www.npmjs.com/package/@x402/client) SDK.
+
+---
+
+## Free Endpoints (No Payment)
+
+These work out of the box — no wallet needed:
+
+- `botindex_discover` — full endpoint catalog with pricing
+- Zora trending coins (via API: `/api/botindex/zora/trending-coins`)
+- Hyperliquid funding arb (via API: `/api/botindex/hyperliquid/funding-arb`)
+
+---
+
+## Links
+
+- **API:** [king-backend.fly.dev/api/botindex/v1/](https://king-backend.fly.dev/api/botindex/v1/)
+- **Agent Discovery:** [/.well-known/ai-plugin.json](https://king-backend.fly.dev/.well-known/ai-plugin.json)
+- **x402 Protocol:** [github.com/coinbase/x402](https://github.com/coinbase/x402)
+- **Source:** [github.com/Cyberweasel777/king-backend](https://github.com/Cyberweasel777/king-backend)
+
+---
 
 ## License
 
