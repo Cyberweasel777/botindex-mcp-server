@@ -1,8 +1,8 @@
 {
-  "name": "@cyberweasel777/botindex-mcp-server",
+  "name": "botindex-mcp-server",
   "mcpName": "io.github.cyberweasel777/botindex-mcp-server",
   "version": "1.0.0",
-  "description": "MCP server for BotIndex — x402-gated sports betting, crypto, and commerce intelligence API for AI agents",
+  "description": "MCP server for BotIndex \u2014 x402-gated sports betting, crypto, and commerce intelligence API for AI agents",
   "main": "dist/index.js",
   "bin": {
     "botindex-mcp-server": "dist/index.js"
