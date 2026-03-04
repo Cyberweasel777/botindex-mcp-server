@@ -2,3 +2,5 @@ src/
 tsconfig.json
 .git/
 .gitignore
+.mcpregistry_github_token
+.mcpregistry_registry_token
