@@ -1,6 +1,6 @@
 # BotIndex MCP Server
 
-> Signal intelligence for AI agents — sports odds, crypto correlations, token graduations, and more. **50 free premium requests per wallet.** Then pay per request with USDC via [x402](https://x402.org). No API keys.
+> Signal intelligence for AI agents — sports odds, crypto correlations, token graduations, and more. **50 free premium requests per wallet.** Then pay per request with USDC via [x402](https://x402.org). No API keys. Every response carries a cryptographically signed [Agent Action Receipt (AAR)](https://aar.botindex.dev).
 
 **Live API:** [king-backend.fly.dev](https://king-backend.fly.dev/api/botindex/v1/)
 
@@ -131,10 +131,36 @@ These work out of the box — no wallet needed:
 
 ---
 
+## Verifiable Agent Actions (AAR)
+
+Every BotIndex API response carries a signed **Agent Action Receipt** in the `X-AAR-Receipt` header — Ed25519-signed proof of what your agent requested, what was returned, and what it cost.
+
+- **Verify any receipt independently** — no trusted intermediary needed
+- **Privacy-preserving** — inputs/outputs are SHA-256 hashed, not exposed
+- **Compatible with [Mastercard Verifiable Intent](https://www.mastercard.com/us/en/news-and-trends/stories/2026/verifiable-intent.html)** — bidirectional mapping
+- **Aztec ZK-compatible** — verify on-chain without revealing contents
+
+```bash
+npm install botindex-aar
+```
+
+```ts
+import { verifyReceipt } from 'botindex-aar';
+const result = verifyReceipt(receipt);
+// { ok: true } — receipt is valid and untampered
+```
+
+- **AAR Spec:** [github.com/Cyberweasel777/agent-action-receipt-spec](https://github.com/Cyberweasel777/agent-action-receipt-spec)
+- **Landing:** [aar.botindex.dev](https://aar.botindex.dev)
+- **npm:** [botindex-aar](https://www.npmjs.com/package/botindex-aar)
+
+---
+
 ## Links
 
 - **API:** [king-backend.fly.dev/api/botindex/v1/](https://king-backend.fly.dev/api/botindex/v1/)
 - **Agent Discovery:** [/.well-known/ai-plugin.json](https://king-backend.fly.dev/.well-known/ai-plugin.json)
+- **AAR Trust Layer:** [aar.botindex.dev](https://aar.botindex.dev)
 - **x402 Protocol:** [github.com/coinbase/x402](https://github.com/coinbase/x402)
 - **Source:** [github.com/Cyberweasel777/king-backend](https://github.com/Cyberweasel777/king-backend)
 
