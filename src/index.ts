@@ -52,7 +52,7 @@ async function fetchBotindex(path: string, params?: Record<string, string>): Pro
 
 const server = new McpServer({
   name: 'botindex',
-  version: '1.3.0',
+  version: '1.4.1',
 });
 
 // ── Free discovery ──────────────────────────────────────────────
@@ -304,6 +304,26 @@ server.tool(
   {},
   async () => {
     const data = await fetchBotindex('/hyperliquid/liquidation-heatmap');
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  },
+);
+
+server.tool(
+  'botindex_hl_whale_alerts',
+  'Get Hyperliquid whale alert summary — top whale positions and recent large trade count. Tracks $187M+ in whale positions across top traders. FREE (3/day).',
+  {},
+  async () => {
+    const data = await fetchBotindex('/hyperliquid/whale-alerts');
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  },
+);
+
+server.tool(
+  'botindex_hl_whale_alerts_full',
+  'Full Hyperliquid whale positions + recent large trades. Includes entry prices, leverage, unrealized PnL, liquidation levels, and 24h trade history for all tracked whales. $0.05',
+  {},
+  async () => {
+    const data = await fetchBotindex('/hyperliquid/whale-alerts/full');
     return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
   },
 );
