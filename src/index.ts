@@ -52,7 +52,7 @@ async function fetchBotindex(path: string, params?: Record<string, string>): Pro
 
 const server = new McpServer({
   name: 'botindex',
-  version: '1.1.0',
+  version: '1.3.0',
 });
 
 // ── Free discovery ──────────────────────────────────────────────
@@ -314,6 +314,60 @@ server.tool(
   { address: z.string().describe('Coin address or symbol (e.g., "BTC", "ETH", or contract address)') },
   async ({ address }) => {
     const data = await fetchBotindex(`/hyperliquid/coin-analytics?address=${encodeURIComponent(address)}`);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  },
+);
+
+// ── Doppler tools ───────────────────────────────────────────────
+server.tool(
+  'botindex_doppler_launches',
+  'Get recent Doppler token launches on Base. Shows new creator coins launching through the Doppler liquidity protocol. $0.01',
+  { limit: z.number().optional().describe('Maximum results to return (default 10)') },
+  async ({ limit }) => {
+    const params: Record<string, string> = {};
+    if (limit) params.limit = String(limit);
+    const data = await fetchBotindex('/doppler/launches', params);
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  },
+);
+
+// ── Intel tools (DeepSeek AI premium analysis) ──────────────────
+server.tool(
+  'botindex_zora_intel',
+  'AI-powered Zora market intelligence. DeepSeek analyzes trending coins, attention momentum, and creator data to produce: risk scores (0-100), fair value estimates, creator grades (A-F), BUY/WATCH/FADE signals with confidence scores, and market summary. Premium tier. $0.05',
+  {},
+  async () => {
+    const data = await fetchBotindex('/zora/intel');
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  },
+);
+
+server.tool(
+  'botindex_hyperliquid_intel',
+  'AI-powered Hyperliquid funding rate intelligence. DeepSeek analyzes funding rate patterns to predict rate persistence, optimal entry timing, risk-adjusted yield estimates, and convergence probability. Premium tier. $0.05',
+  {},
+  async () => {
+    const data = await fetchBotindex('/hyperliquid/intel');
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  },
+);
+
+server.tool(
+  'botindex_crypto_intel',
+  'AI-powered crypto correlation intelligence. DeepSeek performs regime detection on token correlations, identifies portfolio risk clusters, decorrelated alpha opportunities, and generates actionable trading signals. Premium tier. $0.05',
+  {},
+  async () => {
+    const data = await fetchBotindex('/crypto/intel');
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  },
+);
+
+server.tool(
+  'botindex_doppler_intel',
+  'AI-powered Doppler launch intelligence. DeepSeek evaluates new token launches for quality scores, rug probability, creator track record analysis, and BUY/WATCH/FADE signals. Premium tier. $0.05',
+  {},
+  async () => {
+    const data = await fetchBotindex('/doppler/intel');
     return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
   },
 );
