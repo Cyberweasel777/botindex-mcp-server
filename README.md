@@ -4,6 +4,10 @@
 
 **Live API:** [king-backend.fly.dev](https://king-backend.fly.dev/api/botindex/v1/)
 
+<a href="https://glama.ai/mcp/servers/@Cyberweasel777/botindex-mcp-server">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@Cyberweasel777/botindex-mcp-server/badge" alt="botindex-mcp-server MCP server" />
+</a>
+
 ---
 
 ## Try It Now
