@@ -21,6 +21,7 @@ import { z } from 'zod';
 
 const BASE_URL = process.env.BOTINDEX_URL || 'https://king-backend.fly.dev/api/botindex';
 const CATALOG_URL = process.env.BOTINDEX_CATALOG_URL || `${BASE_URL}/mcp-catalog`;
+const AGORION_URL = process.env.AGORION_URL || 'https://king-backend.fly.dev/api/agorion';
 
 interface ToolDef {
   name: string;
@@ -114,6 +115,50 @@ server.tool(
   {},
   async () => {
     const data = await fetchBotindex('/v1/');
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  },
+);
+
+// Agorion: Agent Discovery Network
+server.tool(
+  'agorion_discover',
+  'Search the Agorion agent service discovery network. Find APIs by capability, price, and network. Returns endpoints from 6+ providers including Polymarket, DeFi Llama, CoinGecko, Hyperliquid, Pump.fun, and BotIndex.',
+  {
+    capability: z.string().optional().describe('Filter by capability (e.g. market-data, prediction-markets, defi, crypto-prices, whale-tracking, funding-rates, meme-coins)'),
+    maxPrice: z.number().optional().describe('Max price per call in USD (e.g. 0.05). Use 0 for free-only.'),
+    network: z.string().optional().describe('Blockchain network filter (e.g. base)'),
+    limit: z.number().optional().describe('Max results (default 25, max 200)'),
+  },
+  async (args: Record<string, any>) => {
+    const url = new URL(`${AGORION_URL}/discover`);
+    if (args.capability) url.searchParams.set('capability', args.capability);
+    if (args.maxPrice !== undefined) url.searchParams.set('maxPrice', String(args.maxPrice));
+    if (args.network) url.searchParams.set('network', args.network);
+    if (args.limit) url.searchParams.set('limit', String(args.limit));
+    const res = await fetch(url.toString());
+    const data = await res.json();
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  },
+);
+
+server.tool(
+  'agorion_providers',
+  'List all providers registered in the Agorion discovery network with their service counts.',
+  {},
+  async () => {
+    const res = await fetch(`${AGORION_URL}/providers`);
+    const data = await res.json();
+    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+  },
+);
+
+server.tool(
+  'agorion_stats',
+  'Get aggregate stats for the Agorion discovery network: total providers, services, capabilities breakdown.',
+  {},
+  async () => {
+    const res = await fetch(`${AGORION_URL}/stats`);
+    const data = await res.json();
     return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
   },
 );
