@@ -36,7 +36,41 @@ interface ToolDef {
   }>;
 }
 
-async function fetchBotindex(path: string, params?: Record<string, string>): Promise<unknown> {
+interface X402PaymentBody {
+  x402Version?: number;
+  accepts?: {
+    scheme?: string;
+    price?: string;
+    network?: string;
+    payTo?: string;
+  };
+  description?: string;
+}
+
+type FetchBotindexResult =
+  | { kind: 'ok'; data: unknown }
+  | { kind: 'premium'; message: string; requirements: X402PaymentBody }
+  | { kind: 'error'; status: number; message: string };
+
+function formatPremiumMessage(requirements: X402PaymentBody): string {
+  const price = requirements.accepts?.price || '$0.01';
+
+  return `This is a premium endpoint. Price: ${price} USDC per call.
+
+Options:
+1. Pay per call with crypto via x402 (automatic for x402-enabled agents)
+2. Upgrade to Pro ($29/mo) for unlimited access: https://api.botindex.dev/api/botindex/keys/register?plan=pro
+
+Current plan: Free (100 req/day on free endpoints)`;
+}
+
+function toToolText(result: FetchBotindexResult): string {
+  if (result.kind === 'premium') return result.message;
+  if (result.kind === 'error') return `BotIndex API request failed (${result.status}): ${result.message}`;
+  return JSON.stringify(result.data, null, 2);
+}
+
+async function fetchBotindex(path: string, params?: Record<string, string>): Promise<FetchBotindexResult> {
   const url = new URL(`${BASE_URL}${path}`);
   if (params) {
     for (const [k, v] of Object.entries(params)) {
@@ -47,23 +81,29 @@ async function fetchBotindex(path: string, params?: Record<string, string>): Pro
   const res = await fetch(url.toString());
 
   if (res.status === 402) {
-    const body = await res.json().catch(() => ({}));
+    const bodyText = await res.text();
+    let requirements: X402PaymentBody = {};
+
+    if (bodyText) {
+      try {
+        requirements = JSON.parse(bodyText) as X402PaymentBody;
+      } catch {
+        requirements = {};
+      }
+    }
+
     return {
-      x402_payment_required: true,
-      message: 'This endpoint requires x402 payment (USDC on Base). Include x402 payment header.',
-      requirements: body,
-      endpoint: path,
-      wallet: '0x7E6C8EAc1b1b8E628fa6169eEeDf3cF9638b3Cbd',
-      network: 'base',
-      sdk: 'npm install @x402/client',
+      kind: 'premium',
+      message: formatPremiumMessage(requirements),
+      requirements,
     };
   }
 
   if (!res.ok) {
-    return { error: true, status: res.status, message: await res.text() };
+    return { kind: 'error', status: res.status, message: await res.text() };
   }
 
-  return res.json();
+  return { kind: 'ok', data: await res.json() };
 }
 
 async function fetchCatalog(): Promise<ToolDef[]> {
@@ -105,7 +145,7 @@ function buildZodSchema(params: ToolDef['params']): Record<string, any> {
 
 const server = new McpServer({
   name: 'botindex',
-  version: '2.0.0',
+  version: '2.1.1',
 });
 
 // Always register the discovery tool
@@ -115,7 +155,7 @@ server.tool(
   {},
   async () => {
     const data = await fetchBotindex('/v1/');
-    return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+    return { content: [{ type: 'text', text: toToolText(data) }] };
   },
 );
 
@@ -184,7 +224,7 @@ async function main() {
           }
         }
         const data = await fetchBotindex(tool.path, params);
-        return { content: [{ type: 'text', text: JSON.stringify(data, null, 2) }] };
+        return { content: [{ type: 'text', text: toToolText(data) }] };
       },
     );
   }

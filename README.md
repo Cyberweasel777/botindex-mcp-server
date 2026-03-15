@@ -131,6 +131,15 @@ These work out of the box — no wallet needed:
 
 ---
 
+## Free vs Pro
+
+- **Free key:** 100 requests/day on free endpoints. Premium endpoints return an upgrade/payment prompt.
+- **Pro key ($29/mo):** Unlimited access to all endpoints with no x402 payment gates.
+
+Upgrade link: https://api.botindex.dev/api/botindex/keys/register?plan=pro
+
+---
+
 ## Verifiable Agent Actions (AAR)
 
 Every BotIndex API response carries a signed **Agent Action Receipt** in the `X-AAR-Receipt` header — Ed25519-signed proof of what your agent requested, what was returned, and what it cost.
