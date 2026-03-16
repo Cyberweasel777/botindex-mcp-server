@@ -55,19 +55,95 @@ type FetchBotindexResult =
 function formatPremiumMessage(requirements: X402PaymentBody): string {
   const price = requirements.accepts?.price || '$0.01';
 
-  return `This is a premium endpoint. Price: ${price} USDC per call.
+  return `🔒 PREMIUM ENDPOINT — ${price} USDC per call
 
-Options:
-1. Pay per call with crypto via x402 (automatic for x402-enabled agents)
-2. Upgrade to Pro ($29/mo) for unlimited access: https://api.botindex.dev/api/botindex/keys/register?plan=pro
+How to unlock:
+• Solo dev? Get a Pro key ($29/mo, unlimited): https://api.botindex.dev/api/botindex/keys/register?plan=pro
+• Building an app? Same API, production-grade rate limits and uptime guarantees.
+• Pay per call with crypto (x402) — automatic for x402-enabled agents.
 
-Current plan: Free (100 req/day on free endpoints)`;
+💡 Free tier: Get an API key instantly (no credit card): https://api.botindex.dev/api/botindex/keys/register`;
+}
+
+function extractVerdict(data: any): string | null {
+  if (!data?.verdict) return null;
+  const v = data.verdict;
+  return `⚡ VERDICT: ${v.action} (${v.confidence}% confidence) — ${v.one_liner}`;
+}
+
+function extractSummary(data: any): string | null {
+  if (typeof data?.summary === 'string') return data.summary;
+  if (typeof data?.summaryText === 'string') return data.summaryText;
+  if (typeof data?.summary?.oneLiner === 'string') return data.summary.oneLiner;
+  return null;
+}
+
+function extractMissed(data: any): string | null {
+  if (!data?.missed) return null;
+  const m = data.missed;
+  return `⚠️ ${m.description}. Upgrade to see all: https://api.botindex.dev/api/botindex/keys/register?plan=basic`;
+}
+
+function extractIntelTeaser(data: any): string | null {
+  return data?._cta?.intelligence_teaser || null;
+}
+
+function buildUpgradeFooter(data: any): string {
+  const parts: string[] = [];
+
+  const teaser = extractIntelTeaser(data);
+  if (teaser) parts.push(`\n💡 ${teaser}`);
+
+  const missed = extractMissed(data);
+  if (missed) parts.push(`\n${missed}`);
+
+  if (data?._cta?.telegram) {
+    const tg = data._cta.telegram;
+    const links: string[] = [];
+    if (tg.whale_alerts) links.push(`🐋 Whale alerts: ${tg.whale_alerts.split(' — ')[0]}`);
+    if (tg.zora_alpha) links.push(`🔥 Zora alpha: ${tg.zora_alpha.split(' — ')[0]}`);
+    if (links.length) parts.push(`\n📱 Free Telegram alerts (no signup):\n${links.join('\n')}`);
+  }
+
+  if (!parts.length && !data?.isTruncated) return '';
+
+  if (data?._cta?.upgrade) {
+    parts.push(`\n🚀 Building an app with this data? Production API access: https://api.botindex.dev/api/botindex/keys/register?plan=basic`);
+  }
+
+  return parts.join('\n');
 }
 
 function toToolText(result: FetchBotindexResult): string {
   if (result.kind === 'premium') return result.message;
   if (result.kind === 'error') return `BotIndex API request failed (${result.status}): ${result.message}`;
-  return JSON.stringify(result.data, null, 2);
+
+  const data = result.data as any;
+
+  // Build a human-readable header from structured fields
+  const header: string[] = [];
+
+  const summary = extractSummary(data);
+  if (summary) header.push(`📊 ${summary}`);
+
+  const verdict = extractVerdict(data);
+  if (verdict) header.push(verdict);
+
+  // Strip internal CTA fields from the data dump
+  const cleanData = { ...data };
+  delete cleanData._cta;
+  delete cleanData._polyhacks;
+  delete cleanData.missed;
+  delete cleanData.upgrade;
+
+  const jsonBody = JSON.stringify(cleanData, null, 2);
+  const footer = buildUpgradeFooter(data);
+
+  if (header.length) {
+    return `${header.join('\n')}\n\n${jsonBody}${footer}`;
+  }
+
+  return `${jsonBody}${footer}`;
 }
 
 async function fetchBotindex(path: string, params?: Record<string, string>): Promise<FetchBotindexResult> {
@@ -151,7 +227,7 @@ const server = new McpServer({
 // Always register the discovery tool
 server.tool(
   'botindex_discover',
-  'Get the full BotIndex API catalog — all endpoints, pricing, descriptions. FREE.',
+  'Get the full BotIndex API catalog — all endpoints, pricing, descriptions. FREE. Includes whale alerts, funding arb, Zora trending, compliance headlines, trade signals, portfolio risk, and more.',
   {},
   async () => {
     const data = await fetchBotindex('/v1/');
