@@ -178,3 +178,8 @@ const result = verifyReceipt(receipt);
 ## License
 
 MIT
+
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/cyberweasel777-botindex-mcp-server).
+
